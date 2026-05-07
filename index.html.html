@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cuaderno — Fuenma</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #faf6ef;
+      --ink: #2c1f0e;
+      --sepia: #7a5c3a;
+      --gold: #c49a3c;
+      --light-sepia: #e8dcc8;
+    }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'EB Garamond', serif;
+      min-height: 100vh;
+    }
+
+    ::selection { background: #c49a3c44; }
+
+    /* HEADER */
+    header {
+      border-bottom: 1px solid var(--light-sepia);
+      padding: 1.4rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: var(--cream);
+      z-index: 10;
+    }
+
+    .logo { cursor: pointer; }
+    .logo-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      color: var(--sepia);
+      text-transform: uppercase;
+      margin-bottom: 0.15rem;
+    }
+    .logo-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--ink);
+      letter-spacing: 0.05em;
+    }
+
+    .header-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+    button {
+      font-family: 'EB Garamond', serif;
+      cursor: pointer;
+      transition: opacity 0.2s, background 0.2s;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      border: none;
+      color: var(--cream);
+      padding: 0.45rem 1.1rem;
+    }
+    .btn-primary:hover { background: #a07d2a; }
+    .btn-primary:disabled { background: var(--light-sepia); cursor: default; }
+
+    .btn-ghost {
+      background: none;
+      border: 1px solid var(--light-sepia);
+      color: var(--sepia);
+      padding: 0.4rem 0.9rem;
+    }
+    .btn-ghost:hover { opacity: 0.7; }
+
+    .btn-danger {
+      background: none;
+      border: none;
+      color: #b0856a;
+    }
+    .btn-danger:hover { opacity: 0.7; }
+
+    /* VIEWS */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* LIST */
+    #list-view { max-width: 680px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+    .count {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      color: var(--sepia);
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 4rem 0;
+      color: var(--sepia);
+      font-style: italic;
+      font-size: 1.1rem;
+    }
+
+    .text-list { border-top: 1px solid var(--light-sepia); }
+
+    .text-card {
+      padding: 1.4rem 0.5rem;
+      border-bottom: 1px solid var(--light-sepia);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      transition: background 0.15s;
+    }
+    .text-card:hover { background: #f0e8d8; }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      color: var(--ink);
+      margin-bottom: 0.3rem;
+    }
+    .card-preview {
+      font-size: 0.85rem;
+      color: var(--sepia);
+      font-style: italic;
+    }
+    .card-date {
+      font-size: 0.75rem;
+      color: var(--sepia);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      margin-left: 1rem;
+    }
+
+    /* READ */
+    #read-view { max-width: 620px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+    .back {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      color: var(--sepia);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      cursor: pointer;
+    }
+    .back:hover { opacity: 0.7; }
+
+    .read-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 300;
+      color: var(--ink);
+      margin-bottom: 0.4rem;
+      line-height: 1.2;
+    }
+    .read-date {
+      font-size: 0.75rem;
+      color: var(--sepia);
+      letter-spacing: 0.1em;
+      font-style: italic;
+      margin-bottom: 2.5rem;
+    }
+
+    .read-body {
+      border-left: 2px solid var(--gold);
+      padding-left: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .read-body p {
+      font-size: 1.15rem;
+      line-height: 1.9;
+      color: var(--ink);
+      margin-bottom: 1.4rem;
+    }
+
+    .firma {
+      text-align: right;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-style: italic;
+      color: var(--sepia);
+      letter-spacing: 0.05em;
+    }
+
+    /* WRITE */
+    #write-view { max-width: 620px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+    .write-title-input {
+      width: 100%;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 300;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--light-sepia);
+      padding: 0.5rem 0;
+      margin-bottom: 2rem;
+    }
+    .write-title-input:focus { outline: none; }
+    .write-title-input::placeholder { color: var(--light-sepia); }
+
+    .write-body-input {
+      width: 100%;
+      font-family: 'EB Garamond', serif;
+      font-size: 1.1rem;
+      line-height: 1.85;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      border-left: 2px solid var(--gold);
+      padding-left: 1.5rem;
+      margin-bottom: 2.5rem;
+      resize: none;
+    }
+    .write-body-input:focus { outline: none; }
+    .write-body-input::placeholder { color: var(--light-sepia); }
+
+    .write-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .write-firma {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-style: italic;
+      color: var(--sepia);
+    }
+
+    /* Notification */
+    .notif {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--ink);
+      color: var(--cream);
+      padding: 0.6rem 1.2rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .notif.show { opacity: 1; }
+
+    @media (max-width: 600px) {
+      header { padding: 1rem 1.2rem; }
+      #list-view, #read-view, #write-view { padding-left: 1rem; padding-right: 1rem; }
+      .read-title { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo" onclick="showList()">
+      <div class="logo-label">Cuaderno de</div>
+      <div class="logo-name">— Fuenma</div>
+    </div>
+    <div class="header-actions" id="header-actions">
+      <button class="btn-primary" onclick="showWrite()">+ Escribir</button>
+    </div>
+  </header>
+
+  <!-- LIST -->
+  <div id="list-view" class="view active">
+    <div class="count" id="count-label"></div>
+    <div class="empty" id="empty-msg" style="display:none">El cuaderno espera tu primera palabra.</div>
+    <div class="text-list" id="text-list"></div>
+  </div>
+
+  <!-- READ -->
+  <div id="read-view" class="view">
+    <div class="back" onclick="showList()">← Volver</div>
+    <div class="read-title" id="read-title"></div>
+    <div class="read-date" id="read-date"></div>
+    <div class="read-body" id="read-body"></div>
+    <div class="firma">— Fuenma</div>
+  </div>
+
+  <!-- WRITE -->
+  <div id="write-view" class="view">
+    <div class="back" onclick="showList()">← Cancelar</div>
+    <input class="write-title-input" id="write-title" placeholder="Título..." />
+    <textarea class="write-body-input" id="write-body" rows="14" placeholder="Escribí..."></textarea>
+    <div class="write-footer">
+      <div class="write-firma">— Fuenma</div>
+      <button class="btn-primary" id="save-btn" onclick="saveText()" disabled>Guardar</button>
+    </div>
+  </div>
+
+  <div class="notif" id="notif"></div>
+
+  <script>
+    const STORAGE_KEY = 'fuenma-texts';
+
+    const INITIAL = [
+      {
+        id: 1,
+        title: "El tren",
+        date: "Mayo 2026",
+        body: "Viajo en tren y observo desde mi ventana las cosas, las casas, los lugares que pasan rápido a mi lado... están por un momento, pero en segundos ya no. No corren ellas — yo soy quien estoy en movimiento. No pasan, yo paso entre ellas y las dejo atrás. De algo estoy claro: estoy dentro de un tren en movimiento hacia mi destino.\n\nLo malo, lo trágico y lo incomprensible pasa igual. No pasa — yo estoy pasando entre ello, en Dios que me lleva a su destino. Él está allí ordenando lo todo, a pesar de lo que yo pueda encontrar malo, trágico, incomprensible.\n\nEl martes debo firmar el contrato, el jueves mudarme, y aún no lo he logrado. Pero el tren no se detiene."
+      },
+      {
+        id: 2,
+        title: "El camino",
+        date: "Mayo 2026",
+        body: "Siento que estoy caminando sobre un camino muy estrecho, suspendido en el vacío. Un paso en falso y caigo. Miro al vacío y me entra el vértigo, tiemblan mis piernas y no puedo avanzar aunque quiera. Sé que hacia adelante hay una luz que me guiará y me arrullará como un manto en medio de una fría helada; pero estoy en lucha para dejar de mirar el vacío y enfocarme en mi hogar."
+      }
+    ];
+
+    let texts = [];
+    let currentId = null;
+
+    function load() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      texts = raw ? JSON.parse(raw) : INITIAL;
+      if (!raw) persist();
+    }
+
+    function persist() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(texts));
+    }
+
+    function getMonths() {
+      return ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    }
+
+    function renderList() {
+      const list = document.getElementById('text-list');
+      const empty = document.getElementById('empty-msg');
+      const count = document.getElementById('count-label');
+      count.textContent = `${texts.length} ${texts.length === 1 ? 'texto' : 'textos'}`;
+      list.innerHTML = '';
+      if (texts.length === 0) { empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      texts.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'text-card';
+        card.innerHTML = `
+          <div>
+            <div class="card-title">${t.title}</div>
+            <div class="card-preview">${t.body.slice(0,80)}...</div>
+          </div>
+          <div class="card-date">${t.date}</div>
+        `;
+        card.onclick = () => showRead(t.id);
+        list.appendChild(card);
+      });
+    }
+
+    function showList() {
+      setView('list');
+      document.getElementById('header-actions').innerHTML = `
+        <button class="btn-primary" onclick="showWrite()">+ Escribir</button>
+      `;
+      renderList();
+    }
+
+    function showRead(id) {
+      currentId = id;
+      const t = texts.find(x => x.id === id);
+      if (!t) return;
+      document.getElementById('read-title').textContent = t.title;
+      document.getElementById('read-date').textContent = t.date;
+      const body = document.getElementById('read-body');
+      body.innerHTML = t.body.split('\n\n').map(p => `<p>${p}</p>`).join('');
+      document.getElementById('header-actions').innerHTML = `
+        <button class="btn-ghost" onclick="copyText(${id})">Copiar</button>
+        <button class="btn-danger" onclick="deleteText(${id})">Eliminar</button>
+        <button class="btn-primary" onclick="showWrite()">+ Escribir</button>
+      `;
+      setView('read');
+    }
+
+    function showWrite() {
+      document.getElementById('write-title').value = '';
+      document.getElementById('write-body').value = '';
+      document.getElementById('save-btn').disabled = true;
+      document.getElementById('header-actions').innerHTML = ``;
+      setView('write');
+    }
+
+    function saveText() {
+      const title = document.getElementById('write-title').value.trim();
+      const body = document.getElementById('write-body').value.trim();
+      if (!title || !body) return;
+      const now = new Date();
+      const entry = {
+        id: Date.now(),
+        title,
+        date: `${getMonths()[now.getMonth()]} ${now.getFullYear()}`,
+        body
+      };
+      texts.unshift(entry);
+      persist();
+      showRead(entry.id);
+      notify('Guardado');
+    }
+
+    function deleteText(id) {
+      if (!confirm('¿Eliminar este texto?')) return;
+      texts = texts.filter(t => t.id !== id);
+      persist();
+      showList();
+    }
+
+    function copyText(id) {
+      const t = texts.find(x => x.id === id);
+      if (!t) return;
+      const full = `${t.title}\n\n${t.body}\n\n— Fuenma`;
+      navigator.clipboard.writeText(full).then(() => notify('Copiado ✓'));
+    }
+
+    function setView(name) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(`${name}-view`).classList.add('active');
+    }
+
+    function notify(msg) {
+      const n = document.getElementById('notif');
+      n.textContent = msg;
+      n.classList.add('show');
+      setTimeout(() => n.classList.remove('show'), 2000);
+    }
+
+    // Input listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      load();
+      renderList();
+      const titleInput = document.getElementById('write-title');
+      const bodyInput = document.getElementById('write-body');
+      const saveBtn = document.getElementById('save-btn');
+      function checkInputs() {
+        saveBtn.disabled = !titleInput.value.trim() || !bodyInput.value.trim();
+      }
+      titleInput.addEventListener('input', checkInputs);
+      bodyInput.addEventListener('input', checkInputs);
+    });
+  </script>
+</body>
+</html>
