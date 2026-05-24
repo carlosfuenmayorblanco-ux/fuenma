@@ -26,7 +26,6 @@
 
     ::selection { background: #c49a3c44; }
 
-    /* HEADER */
     header {
       border-bottom: 1px solid var(--light-sepia);
       padding: 1.4rem 2rem;
@@ -90,11 +89,9 @@
     }
     .btn-danger:hover { opacity: 0.7; }
 
-    /* VIEWS */
     .view { display: none; }
     .view.active { display: block; }
 
-    /* LIST */
     #list-view { max-width: 680px; margin: 0 auto; padding: 2.5rem 1.5rem; }
 
     .count {
@@ -111,6 +108,15 @@
       color: var(--sepia);
       font-style: italic;
       font-size: 1.1rem;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 4rem 0;
+      color: var(--sepia);
+      font-style: italic;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
     }
 
     .text-list { border-top: 1px solid var(--light-sepia); }
@@ -145,7 +151,6 @@
       margin-left: 1rem;
     }
 
-    /* READ */
     #read-view { max-width: 620px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
 
     .back {
@@ -195,7 +200,6 @@
       letter-spacing: 0.05em;
     }
 
-    /* WRITE */
     #write-view { max-width: 620px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
 
     .write-title-input {
@@ -241,7 +245,6 @@
       color: var(--sepia);
     }
 
-    /* Notification */
     .notif {
       position: fixed;
       bottom: 2rem;
@@ -276,14 +279,13 @@
     </div>
   </header>
 
-  <!-- LIST -->
   <div id="list-view" class="view active">
     <div class="count" id="count-label"></div>
+    <div class="loading" id="loading-msg">Cargando el cuaderno...</div>
     <div class="empty" id="empty-msg" style="display:none">El cuaderno espera tu primera palabra.</div>
     <div class="text-list" id="text-list"></div>
   </div>
 
-  <!-- READ -->
   <div id="read-view" class="view">
     <div class="back" onclick="showList()">← Volver</div>
     <div class="read-title" id="read-title"></div>
@@ -292,7 +294,6 @@
     <div class="firma">— Fuenma</div>
   </div>
 
-  <!-- WRITE -->
   <div id="write-view" class="view">
     <div class="back" onclick="showList()">← Cancelar</div>
     <input class="write-title-input" id="write-title" placeholder="Título..." />
@@ -306,7 +307,11 @@
   <div class="notif" id="notif"></div>
 
   <script>
-    const STORAGE_KEY = 'fuenma-texts';
+    // ─── CONFIGURACIÓN JSONBIN ───────────────────────────────────────────────
+    const BIN_ID  = '6a12ffcaee5a733b1210ac12';
+    const API_KEY = '$2a$10$DO4xLDumQoIVxbdFNPka6.PurkESVduzKnChovtOOIgKk3U1qV4yy';
+    const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+    // ────────────────────────────────────────────────────────────────────────
 
     const INITIAL = [
       {
@@ -326,14 +331,36 @@
     let texts = [];
     let currentId = null;
 
-    function load() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      texts = raw ? JSON.parse(raw) : INITIAL;
-      if (!raw) persist();
+    async function load() {
+      try {
+        const res = await fetch(`${BIN_URL}/latest`, {
+          headers: { 'X-Master-Key': API_KEY }
+        });
+        if (!res.ok) throw new Error('Error al cargar');
+        const data = await res.json();
+        texts = Array.isArray(data.record.texts) ? data.record.texts : INITIAL;
+      } catch(e) {
+        console.warn('Usando datos locales:', e);
+        texts = INITIAL;
+      }
+      document.getElementById('loading-msg').style.display = 'none';
+      renderList();
     }
 
-    function persist() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(texts));
+    async function persist() {
+      try {
+        await fetch(BIN_URL, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': API_KEY
+          },
+          body: JSON.stringify({ texts })
+        });
+      } catch(e) {
+        console.error('Error al guardar:', e);
+        notify('Error al guardar ✗');
+      }
     }
 
     function getMonths() {
@@ -395,7 +422,7 @@
       setView('write');
     }
 
-    function saveText() {
+    async function saveText() {
       const title = document.getElementById('write-title').value.trim();
       const body = document.getElementById('write-body').value.trim();
       if (!title || !body) return;
@@ -407,15 +434,16 @@
         body
       };
       texts.unshift(entry);
-      persist();
+      notify('Guardando...');
+      await persist();
       showRead(entry.id);
-      notify('Guardado');
+      notify('Guardado ✓');
     }
 
-    function deleteText(id) {
+    async function deleteText(id) {
       if (!confirm('¿Eliminar este texto?')) return;
       texts = texts.filter(t => t.id !== id);
-      persist();
+      await persist();
       showList();
     }
 
@@ -438,10 +466,8 @@
       setTimeout(() => n.classList.remove('show'), 2000);
     }
 
-    // Input listeners
     document.addEventListener('DOMContentLoaded', () => {
       load();
-      renderList();
       const titleInput = document.getElementById('write-title');
       const bodyInput = document.getElementById('write-body');
       const saveBtn = document.getElementById('save-btn');
