@@ -6,259 +6,93 @@
   <title>Cuaderno — Fuenma</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --cream: #faf6ef;
-      --ink: #2c1f0e;
-      --sepia: #7a5c3a;
-      --gold: #c49a3c;
-      --light-sepia: #e8dcc8;
+      --cream: #faf6ef; --ink: #2c1f0e; --sepia: #7a5c3a;
+      --gold: #c49a3c; --light-sepia: #e8dcc8;
     }
-
-    body {
-      background: var(--cream);
-      color: var(--ink);
-      font-family: 'EB Garamond', serif;
-      min-height: 100vh;
-    }
-
+    body { background: var(--cream); color: var(--ink); font-family: 'EB Garamond', serif; min-height: 100vh; }
     ::selection { background: #c49a3c44; }
-
     header {
-      border-bottom: 1px solid var(--light-sepia);
-      padding: 1.4rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      background: var(--cream);
-      z-index: 10;
+      border-bottom: 1px solid var(--light-sepia); padding: 1.4rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; background: var(--cream); z-index: 10;
     }
-
     .logo { cursor: pointer; }
-    .logo-label {
-      font-size: 0.6rem;
-      letter-spacing: 0.25em;
-      color: var(--sepia);
-      text-transform: uppercase;
-      margin-bottom: 0.15rem;
-    }
-    .logo-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.6rem;
-      font-weight: 300;
-      font-style: italic;
-      color: var(--ink);
-      letter-spacing: 0.05em;
-    }
-
+    .logo-label { font-size: 0.6rem; letter-spacing: 0.25em; color: var(--sepia); text-transform: uppercase; margin-bottom: 0.15rem; }
+    .logo-name { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; font-style: italic; color: var(--ink); letter-spacing: 0.05em; user-select: none; }
     .header-actions { display: flex; gap: 0.75rem; align-items: center; }
-
-    button {
-      font-family: 'EB Garamond', serif;
-      cursor: pointer;
-      transition: opacity 0.2s, background 0.2s;
-      font-size: 0.9rem;
-      letter-spacing: 0.05em;
-    }
-
-    .btn-primary {
-      background: var(--gold);
-      border: none;
-      color: var(--cream);
-      padding: 0.45rem 1.1rem;
-    }
+    button { font-family: 'EB Garamond', serif; cursor: pointer; transition: opacity 0.2s, background 0.2s; font-size: 0.9rem; letter-spacing: 0.05em; }
+    .btn-primary { background: var(--gold); border: none; color: var(--cream); padding: 0.45rem 1.1rem; }
     .btn-primary:hover { background: #a07d2a; }
     .btn-primary:disabled { background: var(--light-sepia); cursor: default; }
-
-    .btn-ghost {
-      background: none;
-      border: 1px solid var(--light-sepia);
-      color: var(--sepia);
-      padding: 0.4rem 0.9rem;
-    }
+    .btn-ghost { background: none; border: 1px solid var(--light-sepia); color: var(--sepia); padding: 0.4rem 0.9rem; }
     .btn-ghost:hover { opacity: 0.7; }
-
-    .btn-danger {
-      background: none;
-      border: none;
-      color: #b0856a;
-    }
+    .btn-danger { background: none; border: none; color: #b0856a; }
     .btn-danger:hover { opacity: 0.7; }
-
+    .btn-exit { background: none; border: none; color: var(--sepia); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.5; }
+    .btn-exit:hover { opacity: 1; }
     .view { display: none; }
     .view.active { display: block; }
-
     #list-view { max-width: 680px; margin: 0 auto; padding: 2.5rem 1.5rem; }
-
-    .count {
-      font-size: 0.6rem;
-      letter-spacing: 0.25em;
-      color: var(--sepia);
-      text-transform: uppercase;
-      margin-bottom: 2rem;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 4rem 0;
-      color: var(--sepia);
-      font-style: italic;
-      font-size: 1.1rem;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 4rem 0;
-      color: var(--sepia);
-      font-style: italic;
-      font-size: 1rem;
-      letter-spacing: 0.05em;
-    }
-
+    .count { font-size: 0.6rem; letter-spacing: 0.25em; color: var(--sepia); text-transform: uppercase; margin-bottom: 2rem; }
+    .empty { text-align: center; padding: 4rem 0; color: var(--sepia); font-style: italic; font-size: 1.1rem; }
+    .loading { text-align: center; padding: 4rem 0; color: var(--sepia); font-style: italic; font-size: 1rem; letter-spacing: 0.05em; }
     .text-list { border-top: 1px solid var(--light-sepia); }
-
-    .text-card {
-      padding: 1.4rem 0.5rem;
-      border-bottom: 1px solid var(--light-sepia);
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      transition: background 0.15s;
-    }
+    .text-card { padding: 1.4rem 0.5rem; border-bottom: 1px solid var(--light-sepia); cursor: pointer; display: flex; justify-content: space-between; align-items: baseline; transition: background 0.15s; }
     .text-card:hover { background: #f0e8d8; }
-
-    .card-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.25rem;
-      color: var(--ink);
-      margin-bottom: 0.3rem;
-    }
-    .card-preview {
-      font-size: 0.85rem;
-      color: var(--sepia);
-      font-style: italic;
-    }
-    .card-date {
-      font-size: 0.75rem;
-      color: var(--sepia);
-      letter-spacing: 0.05em;
-      white-space: nowrap;
-      margin-left: 1rem;
-    }
-
+    .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; color: var(--ink); margin-bottom: 0.3rem; }
+    .card-preview { font-size: 0.85rem; color: var(--sepia); font-style: italic; }
+    .card-date { font-size: 0.75rem; color: var(--sepia); letter-spacing: 0.05em; white-space: nowrap; margin-left: 1rem; }
     #read-view { max-width: 620px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
-
-    .back {
-      font-size: 0.6rem;
-      letter-spacing: 0.25em;
-      color: var(--sepia);
-      text-transform: uppercase;
-      margin-bottom: 1.5rem;
-      cursor: pointer;
-    }
+    .back { font-size: 0.6rem; letter-spacing: 0.25em; color: var(--sepia); text-transform: uppercase; margin-bottom: 1.5rem; cursor: pointer; }
     .back:hover { opacity: 0.7; }
-
-    .read-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 2rem;
-      font-weight: 300;
-      color: var(--ink);
-      margin-bottom: 0.4rem;
-      line-height: 1.2;
-    }
-    .read-date {
-      font-size: 0.75rem;
-      color: var(--sepia);
-      letter-spacing: 0.1em;
-      font-style: italic;
-      margin-bottom: 2.5rem;
-    }
-
-    .read-body {
-      border-left: 2px solid var(--gold);
-      padding-left: 1.5rem;
-      margin-bottom: 3rem;
-    }
-    .read-body p {
-      font-size: 1.15rem;
-      line-height: 1.9;
-      color: var(--ink);
-      margin-bottom: 1.4rem;
-    }
-
-    .firma {
-      text-align: right;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.3rem;
-      font-style: italic;
-      color: var(--sepia);
-      letter-spacing: 0.05em;
-    }
-
+    .read-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--ink); margin-bottom: 0.4rem; line-height: 1.2; }
+    .read-date { font-size: 0.75rem; color: var(--sepia); letter-spacing: 0.1em; font-style: italic; margin-bottom: 2.5rem; }
+    .read-body { border-left: 2px solid var(--gold); padding-left: 1.5rem; margin-bottom: 3rem; }
+    .read-body p { font-size: 1.15rem; line-height: 1.9; color: var(--ink); margin-bottom: 1.4rem; }
+    .firma { text-align: right; font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-style: italic; color: var(--sepia); letter-spacing: 0.05em; }
     #write-view { max-width: 620px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
-
-    .write-title-input {
-      width: 100%;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 2rem;
-      font-weight: 300;
-      color: var(--ink);
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid var(--light-sepia);
-      padding: 0.5rem 0;
-      margin-bottom: 2rem;
-    }
+    .write-title-input { width: 100%; font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--ink); background: transparent; border: none; border-bottom: 1px solid var(--light-sepia); padding: 0.5rem 0; margin-bottom: 2rem; }
     .write-title-input:focus { outline: none; }
     .write-title-input::placeholder { color: var(--light-sepia); }
-
-    .write-body-input {
-      width: 100%;
-      font-family: 'EB Garamond', serif;
-      font-size: 1.1rem;
-      line-height: 1.85;
-      color: var(--ink);
-      background: transparent;
-      border: none;
-      border-left: 2px solid var(--gold);
-      padding-left: 1.5rem;
-      margin-bottom: 2.5rem;
-      resize: none;
-    }
+    .write-body-input { width: 100%; font-family: 'EB Garamond', serif; font-size: 1.1rem; line-height: 1.85; color: var(--ink); background: transparent; border: none; border-left: 2px solid var(--gold); padding-left: 1.5rem; margin-bottom: 2.5rem; resize: none; }
     .write-body-input:focus { outline: none; }
     .write-body-input::placeholder { color: var(--light-sepia); }
-
-    .write-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .write-firma {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.2rem;
-      font-style: italic;
-      color: var(--sepia);
-    }
-
-    .notif {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      background: var(--ink);
-      color: var(--cream);
-      padding: 0.6rem 1.2rem;
-      font-size: 0.85rem;
-      letter-spacing: 0.05em;
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
-    }
+    .write-footer { display: flex; justify-content: space-between; align-items: center; }
+    .write-firma { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-style: italic; color: var(--sepia); }
+    .notif { position: fixed; bottom: 2rem; right: 2rem; background: var(--ink); color: var(--cream); padding: 0.6rem 1.2rem; font-size: 0.85rem; letter-spacing: 0.05em; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
     .notif.show { opacity: 1; }
+
+    /* Modal de login */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(44,31,14,0.35); z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: var(--cream); padding: 2.5rem 2rem;
+      max-width: 340px; width: 90%; border-top: 3px solid var(--gold);
+    }
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 1.4rem;
+      font-style: italic; font-weight: 300; color: var(--ink);
+      margin-bottom: 1.8rem; letter-spacing: 0.05em;
+    }
+    .modal-field { margin-bottom: 1.2rem; }
+    .modal-field input {
+      width: 100%; font-family: 'EB Garamond', serif; font-size: 1rem;
+      color: var(--ink); background: transparent; border: none;
+      border-bottom: 1px solid var(--light-sepia); padding: 0.4rem 0;
+    }
+    .modal-field input:focus { outline: none; border-bottom-color: var(--gold); }
+    .modal-field input::placeholder { color: var(--light-sepia); }
+    .modal-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 1.8rem; }
+    .modal-cancel { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--sepia); background: none; border: none; text-transform: uppercase; }
+    .modal-cancel:hover { opacity: 0.6; }
 
     @media (max-width: 600px) {
       header { padding: 1rem 1.2rem; }
@@ -270,13 +104,11 @@
 <body>
 
   <header>
-    <div class="logo" onclick="showList()">
+    <div class="logo" onclick="showList()" ondblclick="openLogin()">
       <div class="logo-label">Cuaderno de</div>
       <div class="logo-name">— Fuenma</div>
     </div>
-    <div class="header-actions" id="header-actions">
-      <button class="btn-primary" onclick="showWrite()">+ Escribir</button>
-    </div>
+    <div class="header-actions" id="header-actions"></div>
   </header>
 
   <div id="list-view" class="view active">
@@ -304,62 +136,89 @@
     </div>
   </div>
 
+  <!-- Modal login -->
+  <div class="modal-overlay" id="modal-overlay" onclick="closeLoginIfOutside(event)">
+    <div class="modal">
+      <div class="modal-title">Entrar al cuaderno</div>
+      <div class="modal-field">
+        <input type="email" id="login-email" placeholder="Correo" autocomplete="email"/>
+      </div>
+      <div class="modal-field">
+        <input type="password" id="login-pass" placeholder="Contraseña" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') doLogin()"/>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeLogin()">Cancelar</button>
+        <button class="btn-primary" onclick="doLogin()">Entrar</button>
+      </div>
+    </div>
+  </div>
+
   <div class="notif" id="notif"></div>
 
   <script>
-    // ─── CONFIGURACIÓN JSONBIN ───────────────────────────────────────────────
-    const BIN_ID  = '6a12ffcaee5a733b1210ac12';
-    const API_KEY = '$2a$10$DO4xLDumQoIVxbdFNPka6.PurkESVduzKnChovtOOIgKk3U1qV4yy';
-    const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-    // ────────────────────────────────────────────────────────────────────────
+    const SUPABASE_URL = 'https://bweecdvyxnmqqnqldmnc.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3ZWVjZHZ5eG5tcXFucWxkbW5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NDk1MDEsImV4cCI6MjA5NTMyNTUwMX0.fA3-gVorL8sIC4kjqANqYr9hpTIYKk857mv-N9KQu-Q';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const INITIAL = [
-      {
-        id: 1,
-        title: "El tren",
-        date: "Mayo 2026",
-        body: "Viajo en tren y observo desde mi ventana las cosas, las casas, los lugares que pasan rápido a mi lado... están por un momento, pero en segundos ya no. No corren ellas — yo soy quien estoy en movimiento. No pasan, yo paso entre ellas y las dejo atrás. De algo estoy claro: estoy dentro de un tren en movimiento hacia mi destino.\n\nLo malo, lo trágico y lo incomprensible pasa igual. No pasa — yo estoy pasando entre ello, en Dios que me lleva a su destino. Él está allí ordenando lo todo, a pesar de lo que yo pueda encontrar malo, trágico, incomprensible.\n\nEl martes debo firmar el contrato, el jueves mudarme, y aún no lo he logrado. Pero el tren no se detiene."
-      },
-      {
-        id: 2,
-        title: "El camino",
-        date: "Mayo 2026",
-        body: "Siento que estoy caminando sobre un camino muy estrecho, suspendido en el vacío. Un paso en falso y caigo. Miro al vacío y me entra el vértigo, tiemblan mis piernas y no puedo avanzar aunque quiera. Sé que hacia adelante hay una luz que me guiará y me arrullará como un manto en medio de una fría helada; pero estoy en lucha para dejar de mirar el vacío y enfocarme en mi hogar."
-      }
+      { id: 8, title: "Maracaibo se mama", date: "Mayo 2026", body: "El frío y la humedad se incrustan en mis huesos y siento la necesidad, más que de arroparme con unas buenas sábanas de lana, de un abrazo de aquella gente que conocí en Maracaibo, tierra ardiente, del sol naciente.\n\n¿Será que el sol forja el interior y no solo tuesta el cuero?\n\nTierra de gente bocona, gritona, dicharachera, maldiciente e incondicional, la encarnación de todas las contradicciones entre la boca y la intención. Donde bendito es sorpresa e incluso lamento, y mardito, sí, así: mardito, es un saludo, no una ofensa. Donde la exageración te atrae porque raya en su contrario: \"ohhhh, vos si estáis feo\", \"vay mi negro\", cumplido y cariño que solo se recibe si pasás el tiempo suficiente con ellos para entenderlo.\n\nLas entrañas de Maracaibo, las que nadie ve ni toma en cuenta, se estremecieron ante mi dolor lejano y amaron a mi padre cual si fuera un hermano.\n\nHoy entiendo que ese amor no se aprende. Se mama." },
+      { id: 7, title: "El Vaso", date: "Mayo 2026", body: "Un vaso de vidrio mediano, empañado con rastros de aquella Kombucha bebida de un jalón, no por placer sino por la necesidad de un trago largo que no saciara la sed sino la ansiedad.\n\nPero era un vaso ahora disponible, dispuesto a ser lavado y llenado. Porque ¿qué es un vaso sino aquello que puede estar lleno o vacío, limpio o empañado, pero nunca lleno y vacío, ni limpio y empañado? Está así porque estuvo limpio, reluciente y transparente, luego lleno, apetecible y disponible. Si hoy está vacío y opaco es porque puede estarlo." },
+      { id: 6, title: "Pendango", date: "Mayo 2026", body: "—Pendango —así me dirijo a Satoshi cariñosamente.\n\nÉl me mira, y como si yo no lo hubiera advertido, sigue oliendo cualquier cosa que se le atraviese en su camino.\n\n—Pendango —le digo por segunda vez, ya más bravo. Se vuelve a mí y con su mirada me dice:\n\n—Así es como descubro mi mundo. Tú que lees tanto, que piensas tanto, ¿cómo no lo comprendes?\n\n—Pendango —tercera vez. Jalo la cuerda para que forzosamente deje el camino y camine.\n\nÉl no solo se vuelve. Me mira. Y me da un ladrido preguntándome:\n\n¿Quién es el que ladra?" },
+      { id: 5, title: "Satoshi y Yo", date: "Mayo 2026", body: "Sincronizados, Satoshi y yo, como si fuéramos dos relojes de cuerda ajustados al mismo pulso, caminamos por las calles arboladas, frías y húmedas de Martínez. Él olfateando cada rincón buscando un no sé qué, yo ensimismado en mis pensamientos del momento, del día, del mes... Me regreso, ya hizo caca." },
+      { id: 4, title: "El Silencio", date: "Mayo 2026", body: "Eres un Dios que se oculta y tu voz es el silencio que consideramos vacío de significado, porque no hay signo, porque no hay significante, porque no hay frecuencia de ondas, porque no necesita el aire; tu voz es como tú, libre como la eternidad antes de lo creado." },
+      { id: 3, title: "No me ha abandonado", date: "Mayo 2026", body: "Dios no me ha abandonado, aunque en ocasiones lo sienta, aunque las circunstancias me digan lo contrario: la verdad es esta, Él siempre ha estado presente, como nube en el día, como columna de fuego en la noche, delante de mí y yo delante de Él." },
+      { id: 2, title: "El tren", date: "Mayo 2026", body: "Viajo en tren y observo desde mi ventana las cosas, las casas, los lugares que pasan rápido a mi lado... están por un momento, pero en segundos ya no. No corren ellas — yo soy quien estoy en movimiento. No pasan, yo paso entre ellas y las dejo atrás. De algo estoy claro: estoy dentro de un tren en movimiento hacia mi destino.\n\nLo malo, lo trágico y lo incomprensible pasa igual. No pasa — yo estoy pasando entre ello, en Dios que me lleva a su destino. Él está allí ordenando lo todo, a pesar de lo que yo pueda encontrar malo, trágico, incomprensible.\n\nEl martes debo firmar el contrato, el jueves mudarme, y aún no lo he logrado. Pero el tren no se detiene." },
+      { id: 1, title: "El camino", date: "Mayo 2026", body: "Siento que estoy caminando sobre un camino muy estrecho, suspendido en el vacío. Un paso en falso y caigo. Miro al vacío y me entra el vértigo, tiemblan mis piernas y no puedo avanzar aunque quiera. Sé que hacia adelante hay una luz que me guiará y me arrullará como un manto en medio de una fría helada; pero estoy en lucha para dejar de mirar el vacío y enfocarme en mi hogar." }
     ];
 
     let texts = [];
     let currentId = null;
+    let isAdmin = false;
 
     async function load() {
-      try {
-        const res = await fetch(`${BIN_URL}/latest`, {
-          headers: { 'X-Master-Key': API_KEY }
-        });
-        if (!res.ok) throw new Error('Error al cargar');
-        const data = await res.json();
-        texts = Array.isArray(data.record.texts) ? data.record.texts : INITIAL;
-      } catch(e) {
-        console.warn('Usando datos locales:', e);
-        texts = INITIAL;
+      // Verificar sesión activa
+      const { data: { session } } = await sb.auth.getSession();
+      isAdmin = !!session;
+
+      // Cargar textos (lectura pública)
+      const { data, error } = await sb.from('texts')
+        .select('*')
+        .order('id', { ascending: false });
+
+      if (error) {
+        console.error('Error al cargar:', error);
+        document.getElementById('loading-msg').style.display = 'none';
+        notify('Error al conectar con la base de datos');
+        return;
       }
+
+      // Si la tabla está vacía y somos admin, sembrar textos iniciales
+      if (data.length === 0 && isAdmin) {
+        const { error: seedErr } = await sb.from('texts').insert(INITIAL);
+        if (!seedErr) {
+          texts = [...INITIAL];
+          notify('Cuaderno restaurado ✓');
+        }
+      } else {
+        texts = data;
+      }
+
       document.getElementById('loading-msg').style.display = 'none';
       renderList();
+      renderHeader();
     }
 
-    async function persist() {
-      try {
-        await fetch(BIN_URL, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': API_KEY
-          },
-          body: JSON.stringify({ texts })
-        });
-      } catch(e) {
-        console.error('Error al guardar:', e);
-        notify('Error al guardar ✗');
+    function renderHeader() {
+      const el = document.getElementById('header-actions');
+      if (isAdmin) {
+        el.innerHTML = `
+          <button class="btn-exit" onclick="doLogout()">salir</button>
+          <button class="btn-primary" onclick="showWrite()">+ Escribir</button>
+        `;
+      } else {
+        el.innerHTML = '';
       }
     }
 
@@ -392,9 +251,7 @@
 
     function showList() {
       setView('list');
-      document.getElementById('header-actions').innerHTML = `
-        <button class="btn-primary" onclick="showWrite()">+ Escribir</button>
-      `;
+      renderHeader();
       renderList();
     }
 
@@ -406,25 +263,36 @@
       document.getElementById('read-date').textContent = t.date;
       const body = document.getElementById('read-body');
       body.innerHTML = t.body.split('\n\n').map(p => `<p>${p}</p>`).join('');
-      document.getElementById('header-actions').innerHTML = `
-        <button class="btn-ghost" onclick="copyText(${id})">Copiar</button>
-        <button class="btn-danger" onclick="deleteText(${id})">Eliminar</button>
-        <button class="btn-primary" onclick="showWrite()">+ Escribir</button>
-      `;
+
+      const el = document.getElementById('header-actions');
+      if (isAdmin) {
+        el.innerHTML = `
+          <button class="btn-ghost" onclick="copyText(${id})">Copiar</button>
+          <button class="btn-danger" onclick="deleteText(${id})">Eliminar</button>
+          <button class="btn-exit" onclick="doLogout()">salir</button>
+          <button class="btn-primary" onclick="showWrite()">+ Escribir</button>
+        `;
+      } else {
+        el.innerHTML = `
+          <button class="btn-ghost" onclick="copyText(${id})">Copiar</button>
+        `;
+      }
       setView('read');
     }
 
     function showWrite() {
+      if (!isAdmin) return;
       document.getElementById('write-title').value = '';
       document.getElementById('write-body').value = '';
       document.getElementById('save-btn').disabled = true;
-      document.getElementById('header-actions').innerHTML = ``;
+      document.getElementById('header-actions').innerHTML = '';
       setView('write');
     }
 
     async function saveText() {
+      if (!isAdmin) return;
       const title = document.getElementById('write-title').value.trim();
-      const body = document.getElementById('write-body').value.trim();
+      const body  = document.getElementById('write-body').value.trim();
       if (!title || !body) return;
       const now = new Date();
       const entry = {
@@ -433,17 +301,20 @@
         date: `${getMonths()[now.getMonth()]} ${now.getFullYear()}`,
         body
       };
-      texts.unshift(entry);
       notify('Guardando...');
-      await persist();
+      const { error } = await sb.from('texts').insert(entry);
+      if (error) { notify('Error al guardar ✗'); console.error(error); return; }
+      texts.unshift(entry);
       showRead(entry.id);
       notify('Guardado ✓');
     }
 
     async function deleteText(id) {
+      if (!isAdmin) return;
       if (!confirm('¿Eliminar este texto?')) return;
+      const { error } = await sb.from('texts').delete().eq('id', id);
+      if (error) { notify('Error al eliminar ✗'); return; }
       texts = texts.filter(t => t.id !== id);
-      await persist();
       showList();
     }
 
@@ -454,6 +325,50 @@
       navigator.clipboard.writeText(full).then(() => notify('Copiado ✓'));
     }
 
+    // ── Login ──────────────────────────────────────────
+    function openLogin() {
+      document.getElementById('modal-overlay').classList.add('show');
+      setTimeout(() => document.getElementById('login-email').focus(), 100);
+    }
+
+    function closeLogin() {
+      document.getElementById('modal-overlay').classList.remove('show');
+      document.getElementById('login-email').value = '';
+      document.getElementById('login-pass').value = '';
+    }
+
+    function closeLoginIfOutside(e) {
+      if (e.target === document.getElementById('modal-overlay')) closeLogin();
+    }
+
+    async function doLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const pass  = document.getElementById('login-pass').value;
+      if (!email || !pass) return;
+      notify('Entrando...');
+      const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) { notify('Credenciales incorrectas'); return; }
+      isAdmin = true;
+      closeLogin();
+
+      // Si la tabla estaba vacía, sembrar ahora
+      if (texts.length === 0) {
+        await sb.from('texts').insert(INITIAL);
+        texts = [...INITIAL];
+        renderList();
+      }
+
+      renderHeader();
+      notify('Bienvenida ✓');
+    }
+
+    async function doLogout() {
+      await sb.auth.signOut();
+      isAdmin = false;
+      showList();
+    }
+
+    // ── Utils ──────────────────────────────────────────
     function setView(name) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.getElementById(`${name}-view`).classList.add('active');
@@ -469,8 +384,8 @@
     document.addEventListener('DOMContentLoaded', () => {
       load();
       const titleInput = document.getElementById('write-title');
-      const bodyInput = document.getElementById('write-body');
-      const saveBtn = document.getElementById('save-btn');
+      const bodyInput  = document.getElementById('write-body');
+      const saveBtn    = document.getElementById('save-btn');
       function checkInputs() {
         saveBtn.disabled = !titleInput.value.trim() || !bodyInput.value.trim();
       }
